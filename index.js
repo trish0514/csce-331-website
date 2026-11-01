@@ -25,22 +25,23 @@ process.on('SIGINT', function() {
 app.set("view engine", "ejs");
 
 app.get('/', (req, res) => {
-    const data = {name: 'Mario'};
-    res.render('index', data);
+    res.redirect('/kiosk');
 });
 	 	 	 	
 app.get('/user', (req, res) => {
-    teammembers = []
     pool
         .query('SELECT * FROM teammembers;')
         .then(query_res => {
-            for (let i = 0; i < query_res.rowCount; i++){
-                teammembers.push(query_res.rows[i]);
-            }
-            const data = {teammembers: teammembers};
-            console.log(teammembers);
-            res.render('user', data);
+            res.render('user', { teammembers: query_res.rows });
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).send('Database error');
         });
+});
+
+app.get('/kiosk', (req, res) => {
+  res.render('kiosk');
 });
 
 app.listen(port, () => {
